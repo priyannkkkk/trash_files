@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en" class="h-full">
+
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Shopping Assistant</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600&family=Nunito:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+
+<body class="h-full">
+
+<div class="chat-container h-full w-full flex items-center justify-center p-4">
+<div class="chat-box w-full max-w-2xl h-[700px] rounded-2xl flex flex-col overflow-hidden">
+
+  <header class="chat-header px-6 py-5 flex items-center gap-4">
+    <div class="logo"></div>
+    <div class="flex-1">
+      <h1 class="chat-title">AI Shopping Assistant</h1>
+      <p class="chat-status">Online • Ready to help</p>
+    </div>
+  </header>
+
+  <main id="messages" class="messages-area flex-1 overflow-y-auto p-6 space-y-4">
+    <div class="ai-message">
+      Hello! 👋 Tell me what you're looking for. Try something like:<br>
+      <em>"best bag under 2000"</em> or <em>"perfume rated 4 stars on Amazon"</em>
+    </div>
+  </main>
+
+  <footer class="input-area px-4 py-4">
+    <form id="chat-form" class="flex gap-3">
+      <input
+        id="message-input"
+        class="chat-input flex-1"
+        placeholder="e.g. bag under 2000, 4 star perfume..."
+        autocomplete="off"
+      />
+      <button type="submit" class="send-btn">Send</button>
+    </form>
+  </footer>
+
+</div>
+</div>
+
+<script src="recommender.js"></script>
+<script src="chatbot.js"></script>
+
+</body>
+</html>

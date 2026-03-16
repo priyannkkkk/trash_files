@@ -1,0 +1,14 @@
+{
+  "name": "shopping-chatbot-scraper",
+  "version": "1.0.0",
+  "description": "Multi-platform product scraper for AI Shopping Assistant",
+  "scripts": {
+    "scrape": "node scrapers/scraper.js",
+    "start": "node scrapers/scraper.js"
+  },
+  "dependencies": {
+    "json2csv": "^6.0.0-alpha.2",
+    "playwright": "^1.58.2",
+    "readline-sync": "^1.4.10"
+  }
+}
