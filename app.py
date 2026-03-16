@@ -1,5 +1,6 @@
 import subprocess
 import json
+import os
 import pandas as pd
 from flask import Flask, request, jsonify
 
@@ -16,7 +17,6 @@ app = Flask(__name__, static_folder="frontend", static_url_path="")
 df_global = None
 
 
-# ── CORS headers so the frontend can fetch /api from any origin ──────────────
 @app.after_request
 def add_cors(response):
     response.headers["Access-Control-Allow-Origin"] = "*"
@@ -29,7 +29,6 @@ def options_handler(path):
     return jsonify({}), 200
 
 
-# ── Pipeline helpers ──────────────────────────────────────────────────────────
 def run_scraper(product):
     print(f"\nRunning scraper for: {product}\n")
     subprocess.run(["node", "scrapers/scraper.js", product], check=True)
@@ -37,7 +36,6 @@ def run_scraper(product):
 
 
 def export_json(df, path="frontend/master_dataset.json"):
-    """Export scored dataframe to JSON for the frontend local mode."""
     records = []
     for _, row in df.iterrows():
         records.append({
@@ -68,15 +66,28 @@ def run_pipeline():
 
 def load_or_build_pipeline():
     global df_global
-    try:
-        df_global = pd.read_csv("data/master_dataset.csv")
-        print(f"Loaded existing dataset: {len(df_global)} products")
-    except FileNotFoundError:
-        print("No dataset found — building pipeline from scraped CSVs...")
-        df_global = run_pipeline()
+
+    csv_path = "data/master_dataset.csv"
+
+    # Check if CSV exists and is non-empty
+    if os.path.exists(csv_path) and os.path.getsize(csv_path) > 0:
+        try:
+            df_global = pd.read_csv(csv_path)
+            if df_global.empty:
+                raise ValueError("CSV is empty")
+            print(f"Loaded existing dataset: {len(df_global)} products")
+            return
+        except Exception as e:
+            print(f"Could not load existing CSV ({e}), will rebuild when scraped.")
+
+    # No valid CSV — start with empty dataframe, wait for scrape
+    print("No dataset found. Please scrape a product first:")
+    print("  node scrapers/scraper.js <product name>")
+    print("  OR use the /api/scrape endpoint")
+    print("\nServer starting anyway — ready to accept scrape requests.\n")
+    df_global = pd.DataFrame()
 
 
-# ── Routes ────────────────────────────────────────────────────────────────────
 @app.route("/")
 def index():
     return app.send_static_file("index.html")
@@ -89,6 +100,9 @@ def chat():
 
     if not query:
         return jsonify({"error": "Empty query"}), 400
+
+    if df_global is None or df_global.empty:
+        return jsonify({"products": [], "message": "No products loaded yet. Please scrape a product first."}), 200
 
     try:
         results = chatbot_response(query, df_global)
